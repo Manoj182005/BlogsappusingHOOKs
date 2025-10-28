@@ -1,5 +1,9 @@
 //Blogging App using Hooks
 import { useState, useRef, useEffect } from "react";
+import { db } from "../firebase.js";
+import { collection, addDoc } from "firebase/firestore"; 
+
+
 
 export default function Blog(){
 
@@ -37,10 +41,19 @@ export default function Blog(){
         }
       }, [blogs]);
 
-    function handleSubmit(e){
+    async function handleSubmit(e){
         e.preventDefault();
 
         setBlogs([{title: formData.title,content:formData.content}, ...blogs]);
+
+        // Add a new document with a generated id.
+        const docRef = await addDoc(collection(db, "blogs"), {
+        title: formData.title,
+        content: formData.content,
+        createdon: new Date()
+        });
+        //console.log("Document written with ID: ", docRef.id);
+
         setformData({title:"", content:""});
         //Setting focus on title after adding a blog
         titleRef.current.focus();
