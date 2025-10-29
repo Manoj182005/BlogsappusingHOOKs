@@ -1,7 +1,8 @@
 //Blogging App using Hooks
 import { useState, useRef, useEffect } from "react";
 import { db } from "../firebase.js";
-import { collection, addDoc } from "firebase/firestore"; 
+import { collection, addDoc, getDocs, doc, onSnapshot } from "firebase/firestore"; 
+
 
 
 
@@ -26,6 +27,36 @@ export default function Blog(){
     useEffect(() => {
         titleRef.current.focus();
     },[]);
+
+    useEffect(() => {
+        // async function fetchData(){
+        //     const querySnapshot = await getDocs(collection(db, "blogs"));
+
+        //     const blogs = querySnapshot.docs.map((doc) => {
+        //         return {
+        //             id: doc.id,
+        //             ...doc.data()
+        //         }
+        //     })
+        //     console.log(blogs);
+        //     setBlogs(blogs);
+        // }
+        // fetchData();
+
+        const unsub = onSnapshot(collection(db, "blogs"), (snapshot) => {
+
+            const blogs = snapshot.docs.map((doc) => {
+                return {
+                    id: doc.id,
+                    ...doc.data()
+                }
+            })
+            console.log(blogs);
+            setBlogs(blogs);
+    
+})
+
+    }, [])
 
     useEffect(() => {
         // 3. Required to add Title of the latest blog as page's title
@@ -100,7 +131,7 @@ export default function Blog(){
         {/* Section where submitted blogs will be displayed */}
         <h2> Blogs </h2>
         {blogs.map((blog,i) => (
-            <div className="blog">
+            <div className="blog" key={blog.id}>
                 <h3>{blog.title}</h3>
                 <hr/>
                 <p>{blog.content}</p>
